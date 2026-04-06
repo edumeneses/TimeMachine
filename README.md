@@ -1,53 +1,74 @@
-# Avendish processor template
+# TimeMachine
 
-This provides a basic, canonical template for making objects with [Avendish](https://github.com/celtera/avendish).
+Using the Avendish processor template
 
-Note that some libraries are needed to access the various back-ends. They can be passed to CMake.
-
-These instructions are mostly useful on Windows / macOS as on Linux one can just install the packages from the OS package manager.
-
-For instance, on Arch Linux:
+## Set VST 3 SDK on Ubuntu 24.04 and install required dependencies
 
 ```bash
-$ sudo pacman -S vst3sdk pd pybind11
+sudo apt-get update
+sudo apt-get update
+sudo apt-get install -y                 \
+    build-essential                     \
+    gcc-14                              \
+    g++-14                              \
+    cmake                               \
+    libasound2-dev                      \
+    libboost-dev                        \
+    libcairo2-dev                       \
+    libfontconfig1-dev                  \
+    libgstreamer-plugins-base1.0-dev    \
+    libgstreamer1.0-dev                 \
+    libgtkmm-3.0-dev                    \
+    libjack-jackd2-dev                  \
+    libsoup2.4-dev                      \
+    libsqlite3-dev                      \
+    libwayland-dev                      \
+    libx11-dev                          \
+    libx11-xcb-dev                      \
+    libxcb-cursor-dev                   \
+    libxcb-keysyms1-dev                 \
+    libxcb-util-dev                     \
+    libxcb-xkb-dev                      \
+    libxkbcommon-dev                    \
+    libxkbcommon-x11-dev                \
+    ninja-build                         \
+    pkg-config                          \
+    pybind11-dev                        \
+    python3-dev                         \
+    wayland-protocols
 ```
 
-will install things.
+sudo apt update
+sudo apt install -y 
 
-To see a complete build procedure, one can refer to the [Github actions workflows](.github/workflows/), which compile 
-the project on clean virtual machines.
+Clone the VST 3 SDK
 
-## Python
- 
-[Get it there](https://github.com/pybind/pybind11) and pass to cmake:
-```cpp
--Dpybind11_DIR=path/to/pybind11
+```bash
+git clone --recursive https://github.com/steinbergmedia/vst3sdk.git
+cd vst3sdk
 ```
 
-## VST 3 SDK
+## Configure 
 
-[Get it there](https://github.com/steinbergmedia/vst3sdk) and pass to cmake:
+Important notes:
 
-```cpp
--DVST3_SDK_ROOT=path/to/vst3
+- replace $HOME with your vst3sdk folder location.
+- The Wayland / ECM Bug: If you have Qt6 development libraries installed (e.g., for ossia score), a package called extra-cmake-modules (ECM) will intercept the VST3 SDK's search for Wayland and crash the build. To fix this, we temporarily hide the ECM Wayland file, configure the project, and then immediately restore the file.
+
+```bash
+sudo mv /usr/lib/x86_64-linux-gnu/cmake/Qt6/3rdparty/extra-cmake-modules/find-modules/FindWayland.cmake /usr/lib/x86_64-linux-gnu/cmake/Qt6/3rdparty/extra-cmake-modules/find-modules/FindWayland.cmake.bak
+mkdir -p build
+cd build
+cmake -G Ninja .. \
+  -DCMAKE_C_COMPILER=gcc-14 \
+  -DCMAKE_CXX_COMPILER=g++-14 \
+  -DCMAKE_BUILD_TYPE=Release \
+  -DVST3_SDK_ROOT=$HOME/vst3sdk
+sudo mv /usr/lib/x86_64-linux-gnu/cmake/Qt6/3rdparty/extra-cmake-modules/find-modules/FindWayland.cmake.bak /usr/lib/x86_64-linux-gnu/cmake/Qt6/3rdparty/extra-cmake-modules/find-modules/FindWayland.cmake
 ```
 
-## Max SDK
+## Build
 
-[Get it there](https://cycling74.com/downloads/sdk) and pass to cmake:
-```cmake
--DAVND_MAXSDK_PATH=path/to/maxsdk
-```
+Go to the `build` folder and run either `ninja` or `cmake --build .`
 
-## PureData
-
-[Get it there](https://github.com/pure-data/pure-data), build it, and pass to cmake:
-
-```cmake
--DCMAKE_PREFIX_PATH=path/to/the/folder/containing/m_pd.h
-```
-
-## TODO
-
-* Support importing them with a package manager
-* Audio support for standalone
+Your compiled .vst3 bundle will be automatically symlinked/copied to `~/.vst3` and ready to use in your host applications.
