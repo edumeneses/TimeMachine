@@ -1,11 +1,10 @@
 # TimeMachine
 
-Using the Avendish processor template
+Using the [Avendish processor template](https://github.com/celtera/avendish-audio-processor-template)
 
 ## Set VST 3 SDK on Ubuntu 24.04 and install required dependencies
 
 ```bash
-sudo apt-get update
 sudo apt-get update
 sudo apt-get install -y                 \
     build-essential                     \
@@ -38,14 +37,10 @@ sudo apt-get install -y                 \
     wayland-protocols
 ```
 
-sudo apt update
-sudo apt install -y 
-
-Clone the VST 3 SDK
+## Clone the VST 3 SDK
 
 ```bash
 git clone --recursive https://github.com/steinbergmedia/vst3sdk.git
-cd vst3sdk
 ```
 
 ## Configure 
