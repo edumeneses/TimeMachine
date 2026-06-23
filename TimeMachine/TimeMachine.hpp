@@ -66,16 +66,15 @@ struct PFFFT_Wrapper {
 
 // --- PLUGIN STRUCT DECLARATION ---
 struct TimeMachine {
-    // 1. Metadata
-    struct meta {
-        static constexpr auto name = "Time Machine";
-        static constexpr auto c_name = "avnd_time_machine";
-        static constexpr auto category = "Spectral";
-        static constexpr auto author = "Edu Meneses";
-        static constexpr auto description = "Spectral Freeze using Phase Vocoder";
-        // Must be a valid (hex) UUID.
-        static constexpr auto uuid = "7f8a9b0c-1d2e-3f4a-5b6c-7d8e9f0a1b2c";
-    };
+    // 1. Metadata (halp_meta exposes these as the static accessors the avnd
+    //    backends expect, e.g. the VST3 binding reads uuid() off the class).
+    halp_meta(name, "Time Machine")
+    halp_meta(c_name, "avnd_time_machine")
+    halp_meta(category, "Spectral")
+    halp_meta(author, "Edu Meneses")
+    halp_meta(description, "Spectral Freeze using Phase Vocoder")
+    // Must be a valid (hex) UUID, 36 chars.
+    halp_meta(uuid, "7f8a9b0c-1d2e-3f4a-5b6c-7d8e9f0a1b2c")
 
     // 2. Inputs (named struct so the UI can reference its members)
     struct inputs_t {
