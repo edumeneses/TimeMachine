@@ -64,6 +64,18 @@ jobs:
 
           cmake -S . -B build \
             -DCMAKE_BUILD_TYPE=Release \
+            -DCMAKE_POLICY_DEFAULT_CMP0077=NEW \
+            -DAVND_ENABLE_PD=OFF \
+            -DAVND_ENABLE_MAX=OFF \
+            -DAVND_ENABLE_CLAP=OFF \
+            -DAVND_ENABLE_VINTAGE=OFF \
+            -DAVND_ENABLE_TOUCHDESIGNER=OFF \
+            -DAVND_ENABLE_PYTHON=OFF \
+            -DAVND_ENABLE_GODOT=OFF \
+            -DAVND_ENABLE_STANDALONE=OFF \
+            -DAVND_ENABLE_GSTREAMER=OFF \
+            -DAVND_ENABLE_WASM=OFF \
+            -DAVND_ENABLE_VST3=ON \
             -DVST3_SDK_ROOT="$PWD/vst3sdk" \
             -DSMTG_ENABLE_VSTGUI_SUPPORT=OFF \
             -DSMTG_ADD_VSTGUI=OFF \
