@@ -168,14 +168,15 @@ jobs:
           
           ls $BUILD_DIR
           shopt -s nullglob
-          for binding in pd max clap python standalone example vintage vst3; do
+          # Ship the VST3 plugin only.
+          for binding in vst3; do
             (
               mkdir -p $BUILD_DIR/$binding
               echo " === $binding === "
               ls $BUILD_DIR/$binding
               cd $BUILD_DIR/$binding
               for file in *; do
-                # Zip stuff 
+                # Zip stuff
                 cmake -E tar cf "$INSTALL_DIR/$binding-${{ matrix.config.triple }}-$file.zip" --format=zip -- "$file"
                 rm -rf "$file"
               done
@@ -193,6 +194,7 @@ jobs:
     name: Release
     runs-on: ubuntu-latest
     needs: build
+    if: github.ref == 'refs/heads/main'
     steps:
       - name: Download all workflow run artifacts
         uses: actions/download-artifact@v7

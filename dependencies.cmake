@@ -29,7 +29,25 @@ if(NOT TARGET Boost::boost)
   )
 endif()
 
-# 4. Handle Avendish (Using MakeAvailable to ensure paths are correct)
+# 4. PFFFT (FFT used by the TimeMachine spectral engine)
+#    Build only the single-precision static lib; skip tests/benchmarks/examples/install.
+set(PFFFT_USE_TYPE_FLOAT  ON  CACHE BOOL "" FORCE)
+set(PFFFT_USE_TYPE_DOUBLE OFF CACHE BOOL "" FORCE)
+set(PFFFT_USE_FFTPACK     OFF CACHE BOOL "" FORCE)
+set(PFFFT_BUILD_TESTS      OFF CACHE BOOL "" FORCE)
+set(PFFFT_BUILD_BENCHMARKS OFF CACHE BOOL "" FORCE)
+set(PFFFT_BUILD_EXAMPLES   OFF CACHE BOOL "" FORCE)
+set(INSTALL_PFFFT          OFF CACHE BOOL "" FORCE)
+
+FetchContent_Declare(
+  pffft
+  GIT_REPOSITORY "https://github.com/marton78/pffft"
+  GIT_TAG  a4b03590cc2a4bea56f9721996e3057835799179
+  GIT_PROGRESS true
+)
+FetchContent_MakeAvailable(pffft)
+
+# 5. Handle Avendish (Using MakeAvailable to ensure paths are correct)
 FetchContent_Declare(
   avendish
   GIT_REPOSITORY "https://github.com/celtera/avendish"

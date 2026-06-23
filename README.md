@@ -1,69 +1,66 @@
 # TimeMachine
 
-Using the [Avendish processor template](https://github.com/celtera/avendish-audio-processor-template)
+A spectral **freeze** audio plugin (phase-vocoder based), built with
+[Avendish](https://github.com/celtera/avendish) from the
+[Avendish processor template](https://github.com/celtera/avendish-audio-processor-template).
 
-## Set VST 3 SDK on Ubuntu 24.04 and install required dependencies
+When *Freeze* is engaged the current spectral frame is held and resynthesised
+indefinitely; *Dry/Wet* blends the frozen signal with the input.
+
+## Download
+
+Pre-built VST3 plugins for Windows, Linux and macOS are published as a rolling
+"Continuous build" release. Grab the latest from the
+[Releases page](../../releases/tag/continuous).
+
+## Dependencies
+
+The build fetches **Boost**, **pffft** and **Avendish** automatically
+(`dependencies.cmake`). You additionally need the **ossia SDK** (provides the
+VST3 SDK, pybind11 and libpd that the Avendish back-ends link against) and a
+C++20 compiler.
+
+Fetch the ossia SDK:
+
+```bash
+curl -L https://raw.githubusercontent.com/ossia/score/master/tools/fetch-sdk.sh > fetch-sdk.sh
+chmod +x ./fetch-sdk.sh
+./fetch-sdk.sh   # installs to /opt/ossia-sdk (Linux/macOS) or c:/ossia-sdk (Windows)
+```
+
+On Linux the system build packages are also needed, e.g. on Ubuntu:
 
 ```bash
 sudo apt-get update
-sudo apt-get install -y                 \
-    build-essential                     \
-    gcc-14                              \
-    g++-14                              \
-    cmake                               \
-    libasound2-dev                      \
-    libboost-dev                        \
-    libcairo2-dev                       \
-    libfontconfig1-dev                  \
-    libgstreamer-plugins-base1.0-dev    \
-    libgstreamer1.0-dev                 \
-    libgtkmm-3.0-dev                    \
-    libjack-jackd2-dev                  \
-    libsoup2.4-dev                      \
-    libsqlite3-dev                      \
-    libwayland-dev                      \
-    libx11-dev                          \
-    libx11-xcb-dev                      \
-    libxcb-cursor-dev                   \
-    libxcb-keysyms1-dev                 \
-    libxcb-util-dev                     \
-    libxcb-xkb-dev                      \
-    libxkbcommon-dev                    \
-    libxkbcommon-x11-dev                \
-    ninja-build                         \
-    pkg-config                          \
-    pybind11-dev                        \
-    python3-dev                         \
-    wayland-protocols
-```
-
-## Clone the VST 3 SDK
-
-```bash
-git clone --recursive https://github.com/steinbergmedia/vst3sdk.git
-```
-
-## Configure 
-
-Important notes:
-
-- replace $HOME with your vst3sdk folder location.
-- The Wayland / ECM Bug: If you have Qt6 development libraries installed (e.g., for ossia score), a package called extra-cmake-modules (ECM) will intercept the VST3 SDK's search for Wayland and crash the build. To fix this, we temporarily hide the ECM Wayland file, configure the project, and then immediately restore the file.
-
-```bash
-sudo mv /usr/lib/x86_64-linux-gnu/cmake/Qt6/3rdparty/extra-cmake-modules/find-modules/FindWayland.cmake /usr/lib/x86_64-linux-gnu/cmake/Qt6/3rdparty/extra-cmake-modules/find-modules/FindWayland.cmake.bak
-mkdir -p build
-cd build
-cmake -G Ninja .. \
-  -DCMAKE_C_COMPILER=gcc-14 \
-  -DCMAKE_CXX_COMPILER=g++-14 \
-  -DCMAKE_BUILD_TYPE=Release \
-  -DVST3_SDK_ROOT=$HOME/vst3sdk
-sudo mv /usr/lib/x86_64-linux-gnu/cmake/Qt6/3rdparty/extra-cmake-modules/find-modules/FindWayland.cmake.bak /usr/lib/x86_64-linux-gnu/cmake/Qt6/3rdparty/extra-cmake-modules/find-modules/FindWayland.cmake
+sudo apt-get install -y build-essential cmake ninja-build \
+    clang-17 lld-17 libc++-17-dev libc++abi-17-dev pkg-config
 ```
 
 ## Build
 
-Go to the `build` folder and run either `ninja` or `cmake --build .`
+```bash
+export SDK_3RDPARTY=/path/to/ossia-sdk-checkout/3rdparty   # from a recursive ossia/score checkout
 
-Your compiled .vst3 bundle will be automatically symlinked/copied to `~/.vst3` and ready to use in your host applications.
+cmake -S . -B build -G Ninja \
+  -DCMAKE_BUILD_TYPE=Release \
+  -DVST3_SDK_ROOT="$SDK_3RDPARTY/vst3" \
+  -Dpybind11_DIR="$SDK_3RDPARTY/libossia/3rdparty/pybind11" \
+  -DCMAKE_PREFIX_PATH="$SDK_3RDPARTY/libpd/pure-data/src"
+
+cmake --build build
+```
+
+The compiled VST3 bundle is written under `build/vst3/`.
+
+The exact, reproducible build steps for every platform live in
+[`.github/workflows/build_cmake.yml`](.github/workflows/build_cmake.yml),
+which also produces the rolling release.
+
+## Known issue
+
+VST3 UIs built from this template can crash *on UI open* inside
+[ossia/score](https://github.com/ossia/score) on Linux while working fine in
+Reaper — see [ossia/score#2023](https://github.com/ossia/score/issues/2023).
+This is a host-side dynamic-link / Qt-runtime collision in score's VST3 UI
+hosting, not a fault of the plugin itself (the same binaries load correctly in
+other hosts).
