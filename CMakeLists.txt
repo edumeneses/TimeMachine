@@ -2,6 +2,11 @@ cmake_minimum_required(VERSION 3.13 FATAL_ERROR)
 
 project(TimeMachine CXX)
 
+# The VST3 plugin is a shared module; everything linked into it (incl. the
+# static pffft lib) must be position-independent or the Linux link fails with
+# "recompile with -fPIC".
+set(CMAKE_POSITION_INDEPENDENT_CODE ON)
+
 include(dependencies.cmake)
 
 add_library(TimeMachine STATIC
