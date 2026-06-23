@@ -48,21 +48,6 @@ FetchContent_Declare(
 FetchContent_MakeAvailable(pffft)
 
 # 5. Handle Avendish (Using MakeAvailable to ensure paths are correct)
-# We only ship VST3: disable every other avnd backend so a broken/unneeded
-# binding (e.g. the Max external) can't fail the build. dump/ossia/example_host
-# are always-on in avnd and build fine.
-set(AVND_ENABLE_PD            OFF CACHE BOOL "" FORCE)
-set(AVND_ENABLE_MAX           OFF CACHE BOOL "" FORCE)
-set(AVND_ENABLE_CLAP          OFF CACHE BOOL "" FORCE)
-set(AVND_ENABLE_VINTAGE       OFF CACHE BOOL "" FORCE)
-set(AVND_ENABLE_TOUCHDESIGNER OFF CACHE BOOL "" FORCE)
-set(AVND_ENABLE_PYTHON        OFF CACHE BOOL "" FORCE)
-set(AVND_ENABLE_GODOT         OFF CACHE BOOL "" FORCE)
-set(AVND_ENABLE_STANDALONE    OFF CACHE BOOL "" FORCE)
-set(AVND_ENABLE_GSTREAMER     OFF CACHE BOOL "" FORCE)
-set(AVND_ENABLE_WASM          OFF CACHE BOOL "" FORCE)
-set(AVND_ENABLE_VST3          ON  CACHE BOOL "" FORCE)
-
 # Pinned to a recent main: older revisions fail to compile against the
 # clang-17 + libc++-17 toolchain now on the CI runners (a hard error inside
 # <tuple> during avnd's structure reflection).

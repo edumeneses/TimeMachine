@@ -13,7 +13,10 @@ add_library(TimeMachine STATIC
 # avnd_make_all needs it too: link/include PUBLIC.
 target_link_libraries(TimeMachine PUBLIC PFFFT::PFFFT)
 
-avnd_make_all(
+# We ship VST3 only: call the vst3 backend directly rather than avnd_make_all
+# (which also builds godot/wasm/standalone/etc. and is not reliably gated by
+# the AVND_ENABLE_<BACKEND> options across CMP0077 policy settings).
+avnd_make_vst3(
   TARGET TimeMachine
   MAIN_FILE "${CMAKE_CURRENT_SOURCE_DIR}/TimeMachine/TimeMachine.hpp"
   MAIN_CLASS TimeMachine
