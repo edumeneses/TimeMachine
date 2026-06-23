@@ -87,7 +87,11 @@ jobs:
             -DCMAKE_POLICY_DEFAULT_CMP0167=OLD \
             "${EXTRA[@]}"
 
-          cmake --build build --config Release --parallel
+          # Build only our VST3 target. avendish unconditionally FetchContents
+          # godot-cpp (no EXCLUDE_FROM_ALL), so building the default `all`
+          # target drags in godot-cpp/wasm/etc.; targeting TimeMachine_vst3
+          # builds just the plugin and its real dependencies.
+          cmake --build build --config Release --target TimeMachine_vst3 --parallel
 
       - name: Package VST3
         shell: bash
