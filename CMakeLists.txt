@@ -27,3 +27,15 @@ avnd_make_vst3(
   MAIN_CLASS TimeMachine
   C_NAME avnd_time_machine
 )
+
+# On Linux the SDK's pluginterfaces static lib doesn't pull funknown.cpp into
+# the module, leaving FUID::generate()/FUID::FUID()/FUnknownPrivate::atomicAdd
+# undefined. A shared module links anyway, but hosts (score, Reaper) then fail
+# to dlopen it and silently skip the plugin. Compile funknown.cpp directly into
+# the module and fail the build on any remaining undefined symbol.
+# macOS/Windows already resolve these, so this is Linux-only.
+if(UNIX AND NOT APPLE AND VST3_SDK_ROOT)
+  target_sources(TimeMachine_vst3
+    PRIVATE "${VST3_SDK_ROOT}/pluginterfaces/base/funknown.cpp")
+  target_link_options(TimeMachine_vst3 PRIVATE "-Wl,--no-undefined")
+endif()
