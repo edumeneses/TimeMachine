@@ -48,10 +48,13 @@ FetchContent_Declare(
 FetchContent_MakeAvailable(pffft)
 
 # 5. Handle Avendish (Using MakeAvailable to ensure paths are correct)
+# Pinned to a recent main: older revisions fail to compile against the
+# GCC-14 / clang-17 + libstdc++-14 toolchains now on the CI runners
+# (a hard error inside <tuple> during avnd's structure reflection).
 FetchContent_Declare(
   avendish
   GIT_REPOSITORY "https://github.com/celtera/avendish"
-  GIT_TAG  6c3f33df5dd95c9f9ec86c9b0b6f2b035dd93cb3
+  GIT_TAG  fa0b8836b46723a15d89e06426f225f2431574db
   GIT_PROGRESS true
 )
 
