@@ -30,9 +30,35 @@ struct PFFFT_Wrapper {
     explicit PFFFT_Wrapper(int fft_size);
     ~PFFFT_Wrapper();
 
-    // Non-copyable / non-movable: owns raw aligned buffers.
+    // Non-copyable (owns raw aligned buffers) but movable, so the enclosing
+    // State can live in a std::vector.
     PFFFT_Wrapper(const PFFFT_Wrapper&) = delete;
     PFFFT_Wrapper& operator=(const PFFFT_Wrapper&) = delete;
+
+    PFFFT_Wrapper(PFFFT_Wrapper&& o) noexcept
+        : setup(o.setup), work_buffer(o.work_buffer)
+        , fft_io_buffer(o.fft_io_buffer), size(o.size) {
+        o.setup = nullptr;
+        o.work_buffer = nullptr;
+        o.fft_io_buffer = nullptr;
+        o.size = 0;
+    }
+    PFFFT_Wrapper& operator=(PFFFT_Wrapper&& o) noexcept {
+        if (this != &o) {
+            if (setup) pffft_destroy_setup(setup);
+            if (work_buffer) pffft_aligned_free(work_buffer);
+            if (fft_io_buffer) pffft_aligned_free(fft_io_buffer);
+            setup = o.setup;
+            work_buffer = o.work_buffer;
+            fft_io_buffer = o.fft_io_buffer;
+            size = o.size;
+            o.setup = nullptr;
+            o.work_buffer = nullptr;
+            o.fft_io_buffer = nullptr;
+            o.size = 0;
+        }
+        return *this;
+    }
 
     void forward(const std::vector<float>& input, std::vector<std::complex<float>>& output_complex);
     void inverse(const std::vector<std::complex<float>>& input_complex, std::vector<float>& output);
