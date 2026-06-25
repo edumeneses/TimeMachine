@@ -79,7 +79,9 @@ struct TimeMachine {
     // 2. Inputs (named struct so the UI can reference its members)
     struct inputs_t {
         halp::toggle<"Freeze"> freeze;
-        halp::knob_f32<"Dry/Wet", halp::range{0.0f, 1.0f}> mix{1.0f};
+        // .init must be set explicitly: halp::range leaves init at 0 otherwise,
+        // which defaulted Dry/Wet to fully dry so the freeze was inaudible.
+        halp::knob_f32<"Dry/Wet", halp::range{.min = 0.0f, .max = 1.0f, .init = 1.0f}> mix;
         halp::audio_bus<"Input", float> audio_in;
     } inputs;
 

@@ -65,10 +65,13 @@ TimeMachine::State::State() : fft(FFT_SIZE) {
     }
 }
 
-void TimeMachine::prepare(halp::setup) {
-    // Channel count is taken from the audio bus at runtime; nothing to preallocate
-    // here since it is unknown until the first buffer arrives.
+void TimeMachine::prepare(halp::setup info) {
+    // Allocate per-channel state up front (off the audio thread). operator()
+    // keeps a guard in case the runtime channel count differs.
     channels.clear();
+    if (info.input_channels > 0) {
+        channels.resize(info.input_channels);
+    }
 }
 
 void TimeMachine::operator()(int frames) {
