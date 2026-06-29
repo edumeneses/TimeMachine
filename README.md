@@ -13,48 +13,34 @@ Pre-built VST3 plugins for Windows, Linux and macOS are published as a rolling
 "Continuous build" release. Grab the latest from the
 [Releases page](../../releases/tag/continuous).
 
-## Dependencies
-
-The build fetches **Boost**, **pffft** and **Avendish** automatically
-(`dependencies.cmake`). You additionally need the **ossia SDK** (provides the
-VST3 SDK, pybind11 and libpd that the Avendish back-ends link against) and a
-C++20 compiler.
-
-Fetch the ossia SDK:
-
-```bash
-curl -L https://raw.githubusercontent.com/ossia/score/master/tools/fetch-sdk.sh > fetch-sdk.sh
-chmod +x ./fetch-sdk.sh
-./fetch-sdk.sh   # installs to /opt/ossia-sdk (Linux/macOS) or c:/ossia-sdk (Windows)
-```
-
-On Linux the system build packages are also needed, e.g. on Ubuntu:
-
-```bash
-sudo apt-get update
-sudo apt-get install -y build-essential cmake ninja-build \
-    clang-17 lld-17 libc++-17-dev libc++abi-17-dev pkg-config
-```
-
 ## Build
 
+`CMakeLists.txt` follows the upstream template (`avnd_addon_init` /
+`avnd_addon_object` / `avnd_addon_finalize`) and fetches **Avendish** and
+**pffft** automatically. You provide a C++20 compiler, the **Steinberg VST3
+SDK**, and **Boost** headers:
+
 ```bash
-export SDK_3RDPARTY=/path/to/ossia-sdk-checkout/3rdparty   # from a recursive ossia/score checkout
+git clone --recursive https://github.com/steinbergmedia/vst3sdk
 
-cmake -S . -B build -G Ninja \
+cmake -S . -B build \
   -DCMAKE_BUILD_TYPE=Release \
-  -DVST3_SDK_ROOT="$SDK_3RDPARTY/vst3" \
-  -Dpybind11_DIR="$SDK_3RDPARTY/libossia/3rdparty/pybind11" \
-  -DCMAKE_PREFIX_PATH="$SDK_3RDPARTY/libpd/pure-data/src"
+  -DVST3_SDK_ROOT="$PWD/vst3sdk" \
+  -DBOOST_ROOT=/path/to/boost \
+  -DSMTG_ENABLE_VSTGUI_SUPPORT=OFF -DSMTG_ADD_VSTGUI=OFF \
+  -DSMTG_CREATE_PLUGIN_LINK=OFF
 
-cmake --build build
+cmake --build build --target avnd_time_machine_vst3
 ```
 
-The compiled VST3 bundle is written under `build/vst3/`.
+The compiled VST3 bundle is written under `build/vst3/avnd_time_machine.vst3`.
 
-The exact, reproducible build steps for every platform live in
+The exact, reproducible build for every platform lives in
 [`.github/workflows/build_cmake.yml`](.github/workflows/build_cmake.yml),
-which also produces the rolling release.
+which mirrors ossia's `avnd-addon` recipe and produces the rolling release.
+(The upstream template drives CI from ossia's reusable workflow; that
+workflow's access is org-restricted, so this fork ships an equivalent
+self-contained build instead.)
 
 ## Known issue
 
