@@ -48,26 +48,19 @@ FetchContent_MakeAvailable(pffft)
 
 avnd_addon_init(NAME TimeMachineAddon)
 
-# Plugin sources. On Linux the VST3 SDK's pluginterfaces lib doesn't carry
-# funknown.cpp into the shared module, leaving FUID::generate()/FUID()/
-# FUnknownPrivate::atomicAdd undefined so hosts silently fail to load it.
-# Compile it in directly when we have the SDK (CI's VST3 build sets VST3_SDK_ROOT).
-set(TIMEMACHINE_SOURCES
-  TimeMachine/TimeMachine.cpp
-  TimeMachine/TimeMachine.hpp)
-if(UNIX AND NOT APPLE AND VST3_SDK_ROOT)
-  list(APPEND TIMEMACHINE_SOURCES "${VST3_SDK_ROOT}/pluginterfaces/base/funknown.cpp")
-endif()
-
 # CATEGORY audioplug: audio plug-in back-ends only (VST3 / CLAP / VST2). Keeps
 # the godot/pd/max/python object back-ends -- and godot-cpp -- out of the build.
+# Building the VST3 SDK from source carries funknown.cpp in its pluginterfaces
+# lib, so the module's FUID symbols resolve; -Wl,--no-undefined below guards it.
 avnd_addon_object(
   BASE TimeMachineAddon
   C_NAME avnd_time_machine
   CLASS TimeMachine
   CATEGORY audioplug
   MAIN_FILE "${CMAKE_CURRENT_SOURCE_DIR}/TimeMachine/TimeMachine.hpp"
-  SOURCES ${TIMEMACHINE_SOURCES}
+  SOURCES
+    TimeMachine/TimeMachine.cpp
+    TimeMachine/TimeMachine.hpp
   DEPENDENCIES PFFFT::PFFFT)
 
 avnd_addon_finalize(NAME TimeMachineAddon
