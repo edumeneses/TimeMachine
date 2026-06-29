@@ -66,8 +66,14 @@ avnd_addon_object(
 avnd_addon_finalize(NAME TimeMachineAddon
   UUID 7f8a9b0c-1d2e-3f4a-5b6c-7d8e9f0a1b2c VERSION 1)
 
-# Fail the Linux VST3 link on any unresolved symbol rather than shipping a
-# module hosts can't dlopen.
-if(UNIX AND NOT APPLE AND TARGET avnd_time_machine_vst3)
+# On Linux the static link order leaves funknown.cpp's symbols
+# (FUID::generate()/FUID()/FUnknownPrivate::atomicAdd, referenced by the SDK's
+# base lib) unresolved, so the module fails to dlopen and hosts silently skip
+# it. Compile funknown.cpp straight into the module target -- which already has
+# the VST3 SDK include dirs -- and fail the link on any remaining undefined
+# symbol. macOS/Windows resolve these on their own.
+if(UNIX AND NOT APPLE AND VST3_SDK_ROOT AND TARGET avnd_time_machine_vst3)
+  target_sources(avnd_time_machine_vst3
+    PRIVATE "${VST3_SDK_ROOT}/pluginterfaces/base/funknown.cpp")
   target_link_options(avnd_time_machine_vst3 PRIVATE "-Wl,--no-undefined")
 endif()
