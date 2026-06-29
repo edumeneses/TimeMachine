@@ -162,6 +162,13 @@ void TimeMachine::State::process_frame(bool freeze) {
 
     was_frozen = freeze;
 
+    // The wet signal is *only* the frozen sound. When not frozen we still ran
+    // the FFT above to keep last_input_phase current for a clean freeze onset,
+    // but we emit no wet output, so the Dry/Wet control is a true crossfade
+    // between the live input (dry) and the frozen sound (wet) at all times.
+    if (!freeze)
+        return;
+
     // D. Inverse FFT
     fft.inverse(freq_domain_buf, time_domain_buf);
 
