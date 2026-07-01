@@ -80,6 +80,10 @@ jobs:
           if [ "$RUNNER_OS" = "macOS" ]; then
             EXTRA+=( "-DCMAKE_CXX_FLAGS=-include exception" "-DCMAKE_OBJCXX_FLAGS=-include exception" )
           fi
+          if [ "$RUNNER_OS" = "Windows" ]; then
+            # VSTGUI's variadic macros need MSVC's conformant preprocessor.
+            EXTRA+=( "-DCMAKE_CXX_FLAGS=/Zc:preprocessor" )
+          fi
 
           cmake -S . -B build \
             -DCMAKE_BUILD_TYPE=Release \
