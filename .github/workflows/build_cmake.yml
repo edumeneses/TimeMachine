@@ -40,7 +40,8 @@ jobs:
             libgl-dev libx11-dev libx11-xcb-dev libxcb1-dev libxcb-util-dev \
             libxcb-cursor-dev libxcb-keysyms1-dev libxcb-xkb-dev \
             libxkbcommon-dev libxkbcommon-x11-dev \
-            libfontconfig1-dev libfreetype-dev libcairo2-dev
+            libfontconfig1-dev libfreetype-dev libcairo2-dev libpango1.0-dev \
+            libwayland-dev wayland-protocols
           sudo update-alternatives --install /usr/bin/gcc gcc /usr/bin/gcc-14 100
           sudo update-alternatives --install /usr/bin/g++ g++ /usr/bin/g++-14 100
 
