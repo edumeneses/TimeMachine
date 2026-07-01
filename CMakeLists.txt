@@ -2,6 +2,12 @@ cmake_minimum_required(VERSION 3.24 FATAL_ERROR)
 
 project(TimeMachine CXX)
 
+# VSTGUI on macOS compiles Objective-C++ sources.
+if(APPLE)
+  enable_language(OBJC)
+  enable_language(OBJCXX)
+endif()
+
 # pffft is a static lib linked into the (shared) plugin module; on Linux that
 # requires position-independent code or the link fails with "recompile with
 # -fPIC".
