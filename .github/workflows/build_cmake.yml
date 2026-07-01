@@ -35,7 +35,12 @@ jobs:
         shell: bash
         run: |
           sudo apt -y update
-          sudo apt install -yqq gcc-14 g++-14 libgl-dev libx11-dev libxcb1-dev jq zip
+          # gcc + VSTGUI's Linux deps (X11/XCB, cairo, freetype, fontconfig, xkb).
+          sudo apt install -yqq gcc-14 g++-14 jq zip \
+            libgl-dev libx11-dev libx11-xcb-dev libxcb1-dev libxcb-util-dev \
+            libxcb-cursor-dev libxcb-keysyms1-dev libxcb-xkb-dev \
+            libxkbcommon-dev libxkbcommon-x11-dev \
+            libfontconfig1-dev libfreetype-dev libcairo2-dev
           sudo update-alternatives --install /usr/bin/gcc gcc /usr/bin/gcc-14 100
           sudo update-alternatives --install /usr/bin/g++ g++ /usr/bin/g++-14 100
 
@@ -79,8 +84,9 @@ jobs:
             -DCMAKE_POLICY_DEFAULT_CMP0077=NEW \
             -DCMAKE_POLICY_DEFAULT_CMP0167=OLD \
             -DVST3_SDK_ROOT="$PWD/vst3sdk" \
-            -DSMTG_ENABLE_VSTGUI_SUPPORT=OFF \
-            -DSMTG_ADD_VSTGUI=OFF \
+            -DSMTG_ENABLE_VSTGUI_SUPPORT=ON \
+            -DSMTG_ADD_VSTGUI=ON \
+            -DAVND_ENABLE_VST3_VSTGUI=ON \
             -DSMTG_CREATE_PLUGIN_LINK=OFF \
             -DSMTG_RUN_VST_VALIDATOR=OFF \
             -DSMTG_ENABLE_VST3_PLUGIN_EXAMPLES=OFF \
