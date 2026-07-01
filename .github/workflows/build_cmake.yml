@@ -59,6 +59,7 @@ jobs:
         uses: actions/checkout@v4
         with:
           repository: steinbergmedia/vst3sdk
+          ref: v3.7.14_build_55
           submodules: recursive
           path: vst3sdk
 
@@ -77,7 +78,7 @@ jobs:
           # Recent Xcode SDKs no longer transitively provide std::terminate to
           # the VST3 SDK's threadchecker_mac.mm.
           if [ "$RUNNER_OS" = "macOS" ]; then
-            EXTRA+=( "-DCMAKE_CXX_FLAGS=-include exception" )
+            EXTRA+=( "-DCMAKE_CXX_FLAGS=-include exception" "-DCMAKE_OBJCXX_FLAGS=-include exception" )
           fi
 
           cmake -S . -B build \
